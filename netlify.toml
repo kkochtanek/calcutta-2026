@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/api/espn"
+  to = "/.netlify/functions/espn"
+  status = 200

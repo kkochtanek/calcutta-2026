@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Calcutta — Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f2f2f2;
+  --white:#fff;
+  --border:#ddd;
+  --border2:#e8e8e8;
+  --text:#111;
+  --muted:#666;
+  --hint:#aaa;
+  --orange:#E8480A;
+  --orange-bg:#fff4f0;
+  --blue:#1455a4;
+  --blue-bg:#eff4ff;
+  --green:#16a34a;
+  --green-bg:#f0fdf4;
+  --purple:#7c3aed;
+  --purple-bg:#f5f3ff;
+  --teal:#0f766e;
+  --red:#dc2626;
+  --red-bg:#fef2f2;
+  --gold:#b45309;
+}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;-webkit-text-size-adjust:100%}
+.bc{font-family:'Barlow Condensed',sans-serif}
+.mono{font-family:'DM Mono',monospace}
+
+/* ── MASTHEAD ── */
+#mast{background:#111;color:#fff;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#mast-l{display:flex;align-items:center;gap:10px}
+.mast-logo{background:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;letter-spacing:.06em;padding:3px 10px;border-radius:3px;flex-shrink:0}
+.mast-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:.04em}
+.mast-sub{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+#mast-r{display:flex;align-items:center;gap:8px}
+#live-dot{width:7px;height:7px;border-radius:50%;background:#444;display:inline-block;margin-right:4px}
+#live-dot.on{background:#22c55e;box-shadow:0 0 7px #22c55e;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#live-label{font-size:11px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.45);text-transform:uppercase}
+#upd{font-size:10px;color:rgba(255,255,255,.3)}
+#refbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Barlow',sans-serif;letter-spacing:.05em;transition:.15s;white-space:nowrap;min-height:32px;touch-action:manipulation}
+#refbtn:hover,#refbtn:active{background:var(--orange);border-color:var(--orange)}
+
+/* ── TABS ── */
+#tabs{background:var(--white);border-bottom:2px solid var(--border);display:flex;padding:0 16px}
+.tab{padding:10px 18px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--orange);border-bottom-color:var(--orange)}
+
+/* ── SUMMARY STRIP ── */
+#strip{background:var(--white);border-bottom:1px solid var(--border);padding:7px 16px}
+.ss-bar{font-size:11px;color:var(--muted);font-weight:500}
+
+/* ── BRACKET PAGE ── */
+#bview{padding:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bracket-scroll-hint{display:none;background:var(--orange-bg);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:7px 16px;border-bottom:1px solid #ffd5c8;text-align:center}
+.bwrap{min-width:960px;background:var(--white);border:1px solid var(--border);border-radius:0;overflow:hidden;margin:0}
+.b-grid{display:grid;grid-template-columns:repeat(4,1fr) 120px repeat(4,1fr)}
+
+/* Round column */
+.rcol{display:flex;flex-direction:column;border-right:1px solid var(--border)}
+.rcol:last-child{border-right:none}
+.rh{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:4px;background:#f8f8f8;border-bottom:1px solid var(--border);color:var(--muted)}
+.rgames{flex:1;display:flex;flex-direction:column}
+.region-band{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 2px;color:#fff;border-bottom:1px solid rgba(0,0,0,.1)}
+.mu{display:flex;flex-direction:column;flex:1;justify-content:center;border-bottom:1px solid var(--border2);min-height:52px}
+.mu:last-child{border-bottom:none}
+.mu-half{display:flex;flex-direction:column;flex:1;justify-content:center}
+.ts{display:flex;align-items:center;gap:3px;padding:2px 5px;min-height:22px;cursor:default;transition:.08s;position:relative}
+.ts:hover{background:rgba(0,0,0,.03)}
+.ts.win{} .ts.out{opacity:.32} .ts.tbd{opacity:.22}
+.ts.go{background:rgba(232,72,10,.06)}
+.ts-bar{width:3px;border-radius:1px;align-self:stretch;min-height:14px;flex-shrink:0}
+.ts-sd{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--hint);min-width:13px;text-align:center}
+.ts-nm{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em}
+.ts-sc{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);min-width:20px;text-align:right}
+.mu-line{height:1px;background:var(--border)}
+.lv{font-size:8px;font-weight:800;color:var(--orange);letter-spacing:.06em;margin-right:1px}
+.rev .ts-sd{order:3;text-align:center}
+.rev .ts-nm{order:2;text-align:right}
+.rev .ts-sc{order:1;text-align:left;margin-right:2px}
+.rev .ts-bar{order:0}
+.rev .lv{order:4}
+.bcenter{background:var(--white);border-left:2px solid var(--border);border-right:2px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;padding:6px 4px}
+.ff-lbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:3px}
+.ff-t{display:flex;align-items:center;gap:4px;padding:4px 5px;border-radius:3px;border:1px solid var(--border2);margin-bottom:3px;min-height:26px}
+.ff-tn{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.champ-box{background:var(--orange);border-radius:5px;padding:8px 6px;text-align:center;margin:4px 0}
+.champ-lbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.65)}
+.champ-nm{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:.04em;color:#fff;line-height:1.1}
+.champ-ow{font-size:9px;color:rgba(255,255,255,.75);margin-top:2px}
+.pot-tag{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);text-align:center;padding:3px 0;letter-spacing:.04em}
+.sep{height:1px;background:var(--border);margin:3px 0}
+
+/* ── LEADERBOARD ── */
+#lview{padding:12px 14px;max-width:1200px;margin:0 auto}
+.oc{background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.och{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:2px solid var(--border)}
+.oci{width:36px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:#fff;flex-shrink:0}
+.ocn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.04em}
+.ocsub{font-size:11px;color:var(--muted)}
+.ocrk{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--border);margin-left:auto}
+.ocrk.r1{color:var(--gold)}.ocrk.r2{color:#9ca3af}.ocrk.r3{color:#b45309}
+
+/* Stats grid — desktop: 6 cols, mobile: 2x3 pill grid */
+.ost{display:grid;grid-template-columns:200px repeat(5,1fr);border-bottom:1px solid var(--border)}
+.osi-spacer{background:#fafafa}
+.osi{padding:8px 10px;text-align:center;border-right:1px solid var(--border)}
+.osi:last-child{border-right:none}
+.osv{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;line-height:1}
+.osl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px}
+
+/* Team rows */
+.team-rows{border-top:1px solid var(--border2)}
+.tr-header{display:grid;grid-template-columns:200px repeat(5,1fr);padding:0;background:#fafafa;border-bottom:1px solid var(--border)}
+.tr-name-h{padding:5px 10px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tr-num-h{padding:5px 8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:right}
+.team-row{display:grid;grid-template-columns:200px repeat(5,1fr);border-bottom:1px solid var(--border2)}
+.team-row:last-child{border-bottom:none}
+.team-row:hover{background:rgba(0,0,0,.02)}
+.tr-name{padding:6px 10px;display:flex;align-items:center;gap:5px;font-size:12px;flex-wrap:wrap;min-width:0}
+.tr-num{padding:6px 8px;font-family:'DM Mono',monospace;font-size:11px;text-align:right;display:flex;align-items:center;justify-content:flex-end}
+
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:middle;flex-shrink:0}
+.dot-g{background:var(--green)}.dot-r{background:var(--red)}.dot-o{background:var(--orange);animation:pulse .9s infinite}.dot-m{background:var(--hint)}
+.badge{display:inline-block;padding:1px 5px;border-radius:2px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+.bg{background:#ecfdf5;color:var(--green)}.br{background:var(--red-bg);color:var(--red)}.bo{background:var(--orange-bg);color:var(--orange)}.bb{background:var(--blue-bg);color:var(--blue)}
+
+/* Loading */
+#loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:999}
+.spin{width:32px;height:32px;border:3px solid #eee;border-top:3px solid var(--orange);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:18px;right:18px;background:#111;color:#fff;border-radius:5px;padding:7px 14px;font-size:11px;font-weight:600;transform:translateY(50px);transition:.22s;z-index:500;pointer-events:none}
+#toast.show{transform:translateY(0)}
+
+/* ══════════════════════════════════════
+   MOBILE PORTRAIT — max-width: 640px
+══════════════════════════════════════ */
+@media(max-width:640px){
+  /* Masthead */
+  #mast{padding:8px 12px;gap:8px}
+  .mast-title{font-size:18px}
+  .mast-sub{display:none}
+  #upd{display:none}
+  #live-label{font-size:10px}
+  #refbtn{padding:6px 10px;font-size:10px}
+
+  /* Tabs — full width equal split */
+  #tabs{padding:0;display:grid;grid-template-columns:1fr 1fr}
+  .tab{text-align:center;padding:11px 8px;font-size:14px}
+
+  /* Strip */
+  #strip{padding:7px 12px}
+  .ss-bar{font-size:10px}
+
+  /* Bracket — swipeable */
+  #bview{padding:0}
+  .bracket-scroll-hint{display:block}
+  .bwrap{border-radius:0;border-left:none;border-right:none;margin:0}
+
+  /* Leaderboard */
+  #lview{padding:10px}
+  .oc{border-radius:8px;margin-bottom:10px}
+  .och{padding:10px 12px;gap:8px}
+  .ocn{font-size:18px}
+  .ocrk{font-size:26px}
+
+  /* All 5 stats + team rows vertically aligned.
+     All three grids share the exact same template:
+     col1 = name/spacer (0.7fr), cols 2-6 = the 5 stats (each 1fr) */
+  .ost{grid-template-columns:0.7fr repeat(5,1fr)}
+  .osi-spacer{display:block;background:#fafafa}
+  .osi{padding:7px 2px;border-right:1px solid var(--border2)}
+  .osi:last-child{border-right:none}
+  .osv{font-size:12px}
+  .osl{font-size:6.5px;letter-spacing:.02em}
+
+  .tr-header{grid-template-columns:0.7fr repeat(5,1fr)}
+  .tr-num-h{padding:4px 2px;font-size:6.5px;letter-spacing:.02em}
+
+  .team-row{grid-template-columns:0.7fr repeat(5,1fr)}
+  .tr-num{padding:5px 2px;font-size:9px}
+
+  .tr-name{padding:6px 4px;gap:3px;font-size:11px}
+  .tr-name .badge{font-size:7px;padding:1px 3px}
+
+  /* Toast centered */
+  #toast{left:50%;right:auto;transform:translateX(-50%) translateY(50px);width:calc(100% - 40px);text-align:center}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+}
+
+/* ══════════════════════════════════════
+   TABLET — 641px–900px
+══════════════════════════════════════ */
+@media(min-width:641px) and (max-width:900px){
+  #lview{padding:12px}
+  .ost{grid-template-columns:120px repeat(5,1fr)}
+  .tr-header{grid-template-columns:120px repeat(5,1fr)}
+  .team-row{grid-template-columns:120px repeat(5,1fr)}
+  .tr-num{font-size:10px;padding:5px 6px}
+  .tr-num-h{padding:5px 6px;font-size:8px}
+  .osv{font-size:16px}
+  #bview{padding:0}
+  .bracket-scroll-hint{display:block}
+  .bwrap{border-radius:0;border-left:none;border-right:none}
+}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spin"></div><div style="font-family:'Barlow Condensed';font-size:14px;font-weight:700;letter-spacing:.1em;color:#999">LOADING LIVE DATA…</div></div>
+<div id="toast"></div>
+
+<div id="mast">
+  <div id="mast-l">
+    <div class="mast-logo">MM</div>
+    <div>
+      <div class="mast-title">2026 CALCUTTA POOL</div>
+      <div class="mast-sub">March Madness · Live Tracker</div>
+    </div>
+  </div>
+  <div id="mast-r">
+    <div><span id="live-dot"></span><span id="live-label">Checking…</span></div>
+    <div id="upd"></div>
+    <button id="refbtn" onclick="refresh()">↻ REFRESH</button>
+  </div>
+</div>
+
+<div id="tabs">
+  <div class="tab" onclick="sw('b')">Bracket</div>
+  <div class="tab on" onclick="sw('l')">Standings</div>
+</div>
+
+<div id="strip">
+  <div class="ss-bar">
+    <span id="ss-g" style="font-weight:700;color:var(--text)">0/63</span> games complete
+    &nbsp;·&nbsp; <strong>$11,590</strong> total pot
+    &nbsp;·&nbsp; auto-refreshes every 3 min
+  </div>
+</div>
+
+<div id="bview" hidden>
+  <div class="bracket-scroll-hint">← Swipe left/right to scroll bracket →</div>
+  <div class="bwrap">
+    <div class="b-grid" id="bgrid"></div>
+  </div>
+</div>
+
+<div id="lview">
+  <div id="lbody"></div>
+</div>
+
+<script>
+// ═══ DATA ═══
+const POT=11590;
+const PW={0:0,1:57.95,2:289.75,3:579.50,4:1043.10,5:1622.60,6:2318.00};
+const OC={Kyle:'#1455a4',Jason:'#E8480A',Allison:'#7c3aed',Dustin:'#0891b2',Sam:'#16a34a',Keith:'#dc2626',Sisqo:'#0f766e',John:'#d97706'};
+function oc(o){return OC[o]||'#bbb'}
+
+// Region colors for bands
+const RC={East:'#1455a4',South:'#7c3aed',West:'#E8480A',Midwest:'#16a34a'};
+
+// POOL — East+South on left, West+Midwest on right (traditional bracket)
+// Seed order within each region: 1,16,8,9,5,12,4,13 | 6,11,3,14,7,10,2,15
+const POOL={
+  East:[
+    {s:1, n:'Duke',          al:['Duke'],                        o:'Jason',  p:975},
+    {s:16,n:'Siena',         al:['Siena'],                       o:null,     p:0},
+    {s:8, n:'Ohio State',    al:['Ohio State','Ohio St.'],       o:'Kyle',   p:50},
+    {s:9, n:'TCU',           al:['TCU'],                         o:null,     p:0},
+    {s:5, n:"St. John's",    al:["St. John's","Saint John's"],   o:'Kyle',   p:215},
+    {s:12,n:'N. Iowa',       al:['Northern Iowa','UNI'],         o:'Jason',  p:25},
+    {s:4, n:'Kansas',        al:['Kansas'],                      o:'Jason',  p:175},
+    {s:13,n:'Cal Baptist',   al:['Cal Baptist','California Baptist'],o:'John',p:50},
+    {s:6, n:'Louisville',    al:['Louisville'],                  o:'Keith',  p:200},
+    {s:11,n:'S. Florida',    al:['South Florida','USF'],         o:'John',   p:55},
+    {s:3, n:'Michigan St.',  al:['Michigan State','Michigan St.'],o:'Dustin',p:390},
+    {s:14,n:'ND State',      al:['North Dakota State','North Dakota St.'],o:null,p:0},
+    {s:7, n:'UCLA',          al:['UCLA'],                        o:'Dustin', p:125},
+    {s:10,n:'UCF',           al:['UCF','Central Florida'],       o:'John',   p:40},
+    {s:2, n:'Connecticut',   al:['Connecticut','UConn'],         o:'Kyle',   p:385},
+    {s:15,n:'Furman',        al:['Furman'],                      o:null,     p:0},
+  ],
+  South:[
+    {s:1, n:'Florida',       al:['Florida'],                     o:'Allison',p:825},
+    {s:16,n:'PV/Lehigh',     al:['Prairie View','Lehigh'],       o:null,     p:0},
+    {s:8, n:'Clemson',       al:['Clemson'],                     o:'Dustin', p:55},
+    {s:9, n:'Iowa',          al:['Iowa'],                        o:'Kyle',   p:65},
+    {s:5, n:'Vanderbilt',    al:['Vanderbilt'],                  o:'Keith',  p:350},
+    {s:12,n:'McNeese',       al:['McNeese','McNeese State'],     o:'Jason',  p:20},
+    {s:4, n:'Nebraska',      al:['Nebraska'],                    o:'Kyle',   p:190},
+    {s:13,n:'Troy',          al:['Troy'],                        o:'Sam',    p:60},
+    {s:6, n:'N. Carolina',   al:['North Carolina','UNC'],        o:'Allison',p:55},
+    {s:11,n:'VCU',           al:['VCU','Virginia Commonwealth'], o:'Allison',p:85},
+    {s:3, n:'Illinois',      al:['Illinois'],                    o:'Kyle',   p:560},
+    {s:14,n:'Penn',          al:['Penn','Pennsylvania'],         o:null,     p:0},
+    {s:7, n:"St. Mary's",    al:["Saint Mary's (CA)","Saint Mary's"],o:'Kyle',p:75},
+    {s:10,n:'Texas A&M',     al:['Texas A&M'],                   o:'Allison',p:50},
+    {s:2, n:'Houston',       al:['Houston'],                     o:'Sam',    p:650},
+    {s:15,n:'Idaho',         al:['Idaho'],                       o:null,     p:0},
+  ],
+  West:[
+    {s:1, n:'Arizona',       al:['Arizona'],                     o:'Jason',  p:975},
+    {s:16,n:'LIU',           al:['Long Island','LIU'],           o:null,     p:0},
+    {s:8, n:'Villanova',     al:['Villanova'],                   o:'Allison',p:50},
+    {s:9, n:'Utah State',    al:['Utah State','Utah St.'],       o:'Jason',  p:60},
+    {s:5, n:'Wisconsin',     al:['Wisconsin'],                   o:'Kyle',   p:175},
+    {s:12,n:'High Point',    al:['High Point'],                  o:'Sam',    p:25},
+    {s:4, n:'Arkansas',      al:['Arkansas'],                    o:'Allison',p:355},
+    {s:13,n:'Hawaii',        al:['Hawaii',"Hawai'i"],            o:'John',   p:55},
+    {s:6, n:'BYU',           al:['BYU'],                         o:'Allison',p:125},
+    {s:11,n:'NC St./TX',     al:['NC State','Texas','North Carolina State'],o:'Sam',p:70},
+    {s:3, n:'Gonzaga',       al:['Gonzaga'],                     o:'Kyle',   p:370},
+    {s:14,n:'Kennesaw',      al:['Kennesaw State','Kennesaw St.'],o:null,    p:0},
+    {s:7, n:'Miami FL',      al:['Miami (FL)','Miami FL'],       o:'Allison',p:130},
+    {s:10,n:'Missouri',      al:['Missouri'],                    o:'Kyle',   p:75},
+    {s:2, n:'Purdue',        al:['Purdue'],                      o:'Kyle',   p:440},
+    {s:15,n:'Queens',        al:['Queens'],                      o:null,     p:0},
+  ],
+  Midwest:[
+    {s:1, n:'Michigan',      al:['Michigan'],                    o:'Dustin', p:950},
+    {s:16,n:'Howard/UMBC',   al:['Howard','UMBC'],               o:null,     p:0},
+    {s:8, n:'Georgia',       al:['Georgia'],                     o:'Allison',p:55},
+    {s:9, n:'Saint Louis',   al:['Saint Louis','SLU'],           o:'John',   p:70},
+    {s:5, n:'Texas Tech',    al:['Texas Tech'],                  o:'Allison',p:110},
+    {s:12,n:'Akron',         al:['Akron'],                       o:'Sam',    p:50},
+    {s:4, n:'Alabama',       al:['Alabama'],                     o:'Keith',  p:270},
+    {s:13,n:'Hofstra',       al:['Hofstra'],                     o:'Sam',    p:55},
+    {s:6, n:'Tennessee',     al:['Tennessee'],                   o:'Dustin', p:210},
+    {s:11,n:'SMU/Miami OH',  al:['SMU','Miami (OH)','Miami OH'], o:'Jason',  p:75},
+    {s:3, n:'Virginia',      al:['Virginia'],                    o:'Sam',    p:300},
+    {s:14,n:'Wright St.',    al:['Wright State','Wright St.'],   o:null,     p:0},
+    {s:7, n:'Kentucky',      al:['Kentucky'],                    o:'Keith',  p:110},
+    {s:10,n:'Santa Clara',   al:['Santa Clara'],                 o:'Allison',p:50},
+    {s:2, n:'Iowa State',    al:['Iowa State'],                  o:'Sisqo',  p:585},
+    {s:15,n:'Tenn. State',   al:['Tennessee State','Tennessee St.'],o:null,  p:0},
+  ]
+};
+
+// 538 probs: r1=R32, r2=S16, r3=E8, r4=F4, r5=Title, r6=Champ
+const PR={
+  'Duke':        {r1:.9879,r2:.8298,r3:.638, r4:.4861,r5:.3149,r6:.1845},
+  'Ohio State':  {r1:.6415,r2:.1238,r3:.0576,r4:.0264,r5:.0095,r6:.0031},
+  "St. John's":  {r1:.8254,r2:.507, r3:.1729,r4:.0992,r5:.0425,r6:.0156},
+  'N. Iowa':     {r1:.1746,r2:.0531,r3:.0065,r4:.0018,r5:.0003,r6:.0001},
+  'Kansas':      {r1:.8626,r2:.4169,r3:.1081,r4:.051, r5:.0186,r6:.0062},
+  'Cal Baptist': {r1:.1375,r2:.023, r3:.0013,r4:.0001,r5:0,    r6:0},
+  'Louisville':  {r1:.7144,r2:.3526,r3:.1807,r4:.0576,r5:.0238,r6:.0088},
+  'S. Florida':  {r1:.2856,r2:.0877,r3:.0287,r4:.0058,r5:.0016,r6:.0002},
+  'Michigan St.':{r1:.924, r2:.5492,r3:.2913,r4:.0991,r5:.04,  r6:.0143},
+  'UCLA':        {r1:.6916,r2:.2618,r3:.109, r4:.0278,r5:.0085,r6:.0022},
+  'Connecticut': {r1:.9403,r2:.6554,r3:.3688,r4:.1368,r5:.0569,r6:.0213},
+  'Florida':     {r1:.9915,r2:.8457,r3:.608, r4:.3464,r5:.1882,r6:.0953},
+  'Clemson':     {r1:.4025,r2:.0521,r3:.0172,r4:.004, r5:.001, r6:.0002},
+  'Iowa':        {r1:.5975,r2:.1018,r3:.0418,r4:.0124,r5:.004, r6:.0011},
+  'Vanderbilt':  {r1:.8404,r2:.5035,r3:.1885,r4:.078, r5:.0324,r6:.0122},
+  'McNeese':     {r1:.1596,r2:.045, r3:.0063,r4:.0012,r5:.0002,r6:0},
+  'Nebraska':    {r1:.922, r2:.4437,r3:.1378,r4:.0485,r5:.0167,r6:.0052},
+  'Troy':        {r1:.078, r2:.0079,r3:.0005,r4:.0001,r5:0,    r6:0},
+  'N. Carolina': {r1:.5022,r2:.1054,r3:.0221,r4:.0047,r5:.001, r6:.0002},
+  'VCU':         {r1:.4978,r2:.1026,r3:.0209,r4:.004, r5:.0009,r6:.0001},
+  'Illinois':    {r1:.971, r2:.788, r3:.3788,r4:.1875,r5:.0923,r6:.0417},
+  "St. Mary's":  {r1:.5819,r2:.1562,r3:.0576,r4:.0176,r5:.0048,r6:.0012},
+  'Texas A&M':   {r1:.4181,r2:.0883,r3:.0281,r4:.0075,r5:.0018,r6:.0004},
+  'Houston':     {r1:.9684,r2:.7515,r3:.492, r4:.2881,r5:.1383,r6:.0629},
+  'Arizona':     {r1:.9898,r2:.8899,r3:.7189,r4:.5289,r5:.2922,r6:.1652},
+  'Villanova':   {r1:.4088,r2:.0373,r3:.0126,r4:.0037,r5:.0008,r6:.0001},
+  'Utah State':  {r1:.5912,r2:.0718,r3:.0292,r4:.0105,r5:.0021,r6:.0005},
+  'Wisconsin':   {r1:.8264,r2:.4039,r3:.0956,r4:.0416,r5:.0136,r6:.0045},
+  'High Point':  {r1:.1736,r2:.0342,r3:.0027,r4:.0005,r5:0,    r6:0},
+  'Arkansas':    {r1:.9271,r2:.551, r3:.1405,r4:.0661,r5:.0217,r6:.0076},
+  'BYU':         {r1:.5429,r2:.1715,r3:.0576,r4:.0121,r5:.0027,r6:.0007},
+  'NC St./TX':   {r1:.249, r2:.0727,r3:.0224,r4:.0044,r5:.001, r6:.0003},
+  'Gonzaga':     {r1:.9673,r2:.6931,r3:.351, r4:.1271,r5:.0461,r6:.017},
+  'Miami FL':    {r1:.5638,r2:.1386,r3:.0526,r4:.0113,r5:.0027,r6:.0007},
+  'Missouri':    {r1:.4362,r2:.0907,r3:.0275,r4:.0051,r5:.001, r6:.0003},
+  'Purdue':      {r1:.9781,r2:.768, r3:.47,  r4:.185, r5:.0841,r6:.04},
+  'Michigan':    {r1:.9782,r2:.8665,r3:.7203,r4:.5011,r5:.3148,r6:.1909},
+  'Georgia':     {r1:.5743,r2:.0799,r3:.0353,r4:.0111,r5:.0029,r6:.0007},
+  'Saint Louis': {r1:.4257,r2:.0499,r3:.0199,r4:.0052,r5:.0012,r6:.0003},
+  'Texas Tech':  {r1:.7071,r2:.2668,r3:.0484,r4:.0143,r5:.0037,r6:.001},
+  'Akron':       {r1:.2929,r2:.0644,r3:.0061,r4:.0009,r5:.0002,r6:0},
+  'Alabama':     {r1:.8792,r2:.6305,r3:.1663,r4:.0684,r5:.0243,r6:.0079},
+  'Hofstra':     {r1:.1208,r2:.0383,r3:.0032,r4:.0005,r5:.0001,r6:0},
+  'Tennessee':   {r1:.7767,r2:.3735,r3:.1388,r4:.0438,r5:.0165,r6:.0057},
+  'SMU/Miami OH':{r1:.1876,r2:.054, r3:.0118,r4:.0022,r5:.0005,r6:.0001},
+  'Virginia':    {r1:.9443,r2:.5607,r3:.2207,r4:.0737,r5:.0278,r6:.0101},
+  'Kentucky':    {r1:.639, r2:.1803,r3:.086, r4:.0244,r5:.0083,r6:.0027},
+  'Santa Clara': {r1:.361, r2:.0692,r3:.0243,r4:.0047,r5:.0011,r6:.0003},
+  'Iowa State':  {r1:.9752,r2:.7483,r3:.5172,r4:.2496,r5:.1302,r6:.066},
+};
+const DP={r1:.5,r2:.2,r3:.08,r4:.03,r5:.01,r6:.004};
+
+// ═══ STATE ═══
+let W={}, gDone=0;
+
+// ═══ ESPN ═══
+const DATES=['20260317','20260318','20260319','20260320','20260321','20260322',
+             '20260326','20260327','20260328','20260329','20260404','20260405','20260406'];
+const EXCL=['alabama state','alabama am','alabama a&m','south alabama','tennessee state',
+  'tennessee martin','florida state','florida atlantic','florida gulf','florida international',
+  'florida a&m','florida am','north carolina state','north carolina at','north carolina central',
+  'north carolina asheville','kansas state','kansas city','iowa state university',
+  'georgia state','georgia tech','georgia southern','georgia gwinnett',
+  'virginia tech','virginia commonwealth','virginia military','virginia union',
+  'arkansas state','arkansas pine','michigan state','houston baptist','houston christian',
+  'gonzaga prep','arizona state','arizona christian','purdue fort wayne','purdue northwest',
+  'saint mary','saint joseph','butler','utah valley','illinois state','illinois chicago'];
+
+function norm(s){return(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
+function matchTeam(en){
+  const raw=(en||'').toLowerCase().replace(/[^a-z0-9 &]/g,'').trim();
+  if(EXCL.some(ex=>raw===ex||raw.startsWith(ex+' '))) return null;
+  const n=norm(en);
+  for(const [,teams] of Object.entries(POOL)){
+    for(const t of teams){
+      for(const a of t.al){
+        const na=norm(a);
+        if(n===na) return t.n;
+        const nw=n.split(' '), naw=na.split(' ');
+        if(naw.every(w=>nw.includes(w))&&Math.abs(n.length-na.length)<4) return t.n;
+      }
+    }
+  }
+  return null;
+}
+
+async function fetchESPN(){
+  const nw={};let tot=0;
+  const rs=await Promise.allSettled(
+    DATES.map(d=>fetch(`/api/espn?date=${d}`).then(r=>r.ok?r.json():null).catch(()=>null))
+      .then(r=>r.ok?r.json():null).catch(()=>null))
+  );
+  for(const r of rs){
+    if(r.status!=='fulfilled'||!r.value?.events) continue;
+    for(const ev of r.value.events){
+      const c=ev.competitions?.[0];
+      if(!c?.competitors||c.competitors.length<2) continue;
+      const done=c.status?.type?.completed;
+      const live=c.status?.type?.state==='in';
+      if(done) tot++;
+      // Skip play-in: both map to same slot
+      const mapped=c.competitors.map(x=>matchTeam(x.team?.displayName||''));
+      if(mapped[0]&&mapped[0]===mapped[1]) continue;
+      for(const x of c.competitors){
+        const pn=matchTeam(x.team?.displayName||'');
+        if(!pn) continue;
+        if(!nw[pn]) nw[pn]={wins:0,eliminated:false,live:false,score:''};
+        const opp=c.competitors.find(y=>y.team?.displayName!==x.team?.displayName);
+        if(done){
+          if(x.winner===true) nw[pn].wins++;
+          else nw[pn].eliminated=true;
+          nw[pn].score=`${x.score}-${opp?.score||'?'}`;
+        } else if(live){
+          nw[pn].live=true;
+          nw[pn].score=`${x.score}-${opp?.score||'?'}`;
+        }
+      }
+    }
+  }
+  W=nw; gDone=tot;
+}
+
+// ═══ EV ═══
+function teamEV(n){
+  const p=PR[n]||DP, st=W[n]||{wins:0,eliminated:false};
+  const k=st.wins||0;
+  if(st.eliminated) return{realized:PW[k]||0,rem:0};
+  const base=k===0?1:([p.r1,p.r2,p.r3,p.r4,p.r5,p.r6][k-1]||.001);
+  const cl=v=>Math.min(1,Math.max(0,v||0));
+  const r1=cl(p.r1/base),r2=cl(p.r2/base),r3=cl(p.r3/base),
+        r4=cl(p.r4/base),r5=cl(p.r5/base),r6=cl(p.r6/base);
+  let ev=0;
+  if(k<1)ev+=(r1-r2)*PW[1];if(k<2)ev+=(r2-r3)*PW[2];if(k<3)ev+=(r3-r4)*PW[3];
+  if(k<4)ev+=(r4-r5)*PW[4];if(k<5)ev+=(r5-r6)*PW[5];ev+=r6*PW[6];
+  return{realized:0,rem:Math.max(0,ev)};
+}
+function ownerStats(o){
+  let inv=0,real=0,rem=0;
+  for(const[,ts]of Object.entries(POOL)){for(const t of ts){
+    if(t.o!==o)continue; inv+=t.p;
+    const ev=teamEV(t.n); real+=ev.realized; rem+=ev.rem;
+  }}
+  return{inv,real,rem,net:real-inv,netEV:real+rem-inv};
+}
+
+// ═══ FORMAT ═══
+function fm(n,s=false){
+  const a='$'+Math.round(Math.abs(n)).toLocaleString();
+  if(!s)return n<0?'-'+a:a;
+  return n<0?'-'+a:'+'+a;
+}
+function fc(n){return n>=0?'var(--green)':'var(--red)'}
+
+// ═══ BRACKET ═══
+function gw(n){return W[n]||{wins:0,eliminated:false,live:false,score:''}}
+function winner(a,b){
+  if(!a||!b||a.n==='?'||b.n==='?') return null;
+  const sa=gw(a.n),sb=gw(b.n);
+  if(sa.eliminated&&!sb.eliminated)return b;
+  if(sb.eliminated&&!sa.eliminated)return a;
+  return null;
+}
+
+function tSlot(t,rev=false){
+  if(!t||t.n==='?')return`<div class="ts tbd${rev?' rev':''}"><span class="ts-bar" style="background:#eee"></span><span class="ts-sd">?</span><span class="ts-nm" style="color:#ccc">TBD</span></div>`;
+  const st=gw(t.n);
+  const elim=st.eliminated, live=st.live;
+  const color=t.o?oc(t.o):'#ddd';
+  const cls='ts'+(elim?' out':live?' go':'')+(rev?' rev':'');
+  const sc=st.score?`<span class="ts-sc">${st.score}</span>`:'';
+  const lv=live?`<span class="lv">●</span>`:'';
+  return`<div class="${cls}" title="${t.o||'No owner'} · $${t.p}">
+    <span class="ts-bar" style="background:${color}"></span>
+    <span class="ts-sd">${t.s}</span>
+    <span class="ts-nm" style="color:${t.o?color:'#bbb'}">${t.n}</span>
+    ${lv}${sc}
+  </div>`;
+}
+
+function muPair(a,b,rev=false){
+  return`<div class="mu">${tSlot(a,rev)}<div class="mu-line"></div>${tSlot(b,rev)}</div>`;
+}
+function muSingle(t,rev=false){
+  return`<div class="mu">${tSlot(t,rev)}</div>`;
+}
+
+function advRound(pairs){
+  return pairs.map(([a,b])=>winner(a,b)||{n:'?',s:'?',o:null,p:0,al:[]});
+}
+
+function buildRegion(reg){
+  const teams=POOL[reg];
+  // Traditional seed order: top half 1,16,8,9,5,12,4,13 | bottom half 6,11,3,14,7,10,2,15
+  const SO=[1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15];
+  const by=SO.map(s=>teams.find(t=>t.s===s)||{n:'?',s,o:null,p:0,al:[]});
+  const r64=[[by[0],by[1]],[by[2],by[3]],[by[4],by[5]],[by[6],by[7]],
+              [by[8],by[9]],[by[10],by[11]],[by[12],by[13]],[by[14],by[15]]];
+  const r32t=advRound(r64);
+  const r32=[[r32t[0],r32t[1]],[r32t[2],r32t[3]],[r32t[4],r32t[5]],[r32t[6],r32t[7]]];
+  const s16t=advRound(r32);
+  const s16=[[s16t[0],s16t[1]],[s16t[2],s16t[3]]];
+  const e8t=advRound(s16);
+  const e8=[[e8t[0],e8t[1]]];
+  const f4=advRound(e8)[0];
+  return{r64,r32,r32t,s16,s16t,e8,e8t,f4};
+}
+
+function renderBracket(){
+  const E=buildRegion('East'), S=buildRegion('South');
+  const W2=buildRegion('West'), M=buildRegion('Midwest');
+
+  // Final Four: East vs South (left), West vs Midwest (right)
+  const champL=winner(E.f4,S.f4)||null;
+  const champR=winner(W2.f4,M.f4)||null;
+  const champ=winner(champL||E.f4,champR||W2.f4)||null;
+
+  // Band colors
+  const EB=RC.East, SB=RC.South, WB=RC.West, MB=RC.Midwest;
+
+  // Build each round column content
+  // Left side: 8 East games + 8 South games (16 total in R64)
+  // As rounds advance: 4+4, 2+2, 1+1
+
+  function bandedGames(topGames,topColor,botGames,botColor,isSingle=false,rev=false){
+    const fn=isSingle?muSingle:muPair;
+    let h='<div class="mu-half">';
+    for(const g of topGames) h+=fn(...(isSingle?[g,rev]:[g[0],g[1],rev]));
+    h+='</div>';
+    h+='<div class="mu-half">';
+    for(const g of botGames) h+=fn(...(isSingle?[g,rev]:[g[0],g[1],rev]));
+    h+='</div>';
+    return h;
+  }
+
+  // Left columns
+  function lcol(label,topBand,topColor,topGames,botBand,botColor,botGames,isSingle=false){
+    return`<div class="rcol">
+      <div class="rh">${label}</div>
+      <div class="rgames">
+        <div class="mu-half">
+          <div class="region-band" style="background:${topColor}">${topBand}</div>
+          ${topGames.map(g=>isSingle?muSingle(g):muPair(g[0],g[1])).join('')}
+        </div>
+        <div class="mu-half">
+          <div class="region-band" style="background:${botColor}">${botBand}</div>
+          ${botGames.map(g=>isSingle?muSingle(g):muPair(g[0],g[1])).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Right columns (reversed teams)
+  function rcol(label,topBand,topColor,topGames,botBand,botColor,botGames,isSingle=false){
+    return`<div class="rcol">
+      <div class="rh">${label}</div>
+      <div class="rgames">
+        <div class="mu-half">
+          <div class="region-band" style="background:${topColor}">${topBand}</div>
+          ${topGames.map(g=>isSingle?muSingle(g,true):muPair(g[0],g[1],true)).join('')}
+        </div>
+        <div class="mu-half">
+          <div class="region-band" style="background:${botColor}">${botBand}</div>
+          ${botGames.map(g=>isSingle?muSingle(g,true):muPair(g[0],g[1],true)).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Center
+  function ffSlot(t){
+    if(!t||t.n==='?')return`<div class="ff-t"><span class="ts-bar" style="background:#ddd"></span><span class="ff-tn" style="color:#bbb">TBD</span></div>`;
+    const c=t.o?oc(t.o):'#ccc';
+    return`<div class="ff-t"><span class="ts-bar" style="background:${c}"></span><span class="ff-tn" style="color:${c}">${t.n}</span></div>`;
+  }
+  const champBox=champ
+    ?`<div class="champ-box"><div class="champ-lbl">Champion</div><div class="champ-nm">${champ.n}</div><div class="champ-ow">${fm(PW[6])}</div></div>`
+    :`<div class="champ-box" style="background:#ccc"><div class="champ-lbl">Champion</div><div class="champ-nm" style="font-size:14px;color:rgba(255,255,255,.6)">TBD</div></div>`;
+
+  const center=`<div class="bcenter">
+    <div>
+      <div class="ff-lbl">Final Four</div>
+      ${ffSlot(E.f4)}${ffSlot(S.f4)}
+    </div>
+    <div>
+      <div class="sep"></div>
+      ${champBox}
+      <div class="pot-tag">POT · $${POT.toLocaleString()}</div>
+      <div class="sep"></div>
+    </div>
+    <div>
+      <div class="ff-lbl">Final Four</div>
+      ${ffSlot(W2.f4)}${ffSlot(M.f4)}
+    </div>
+  </div>`;
+
+  document.getElementById('bgrid').innerHTML =
+    lcol('R64','East',EB,E.r64,'South',SB,S.r64) +
+    lcol('R32','East',EB,E.r32,'South',SB,S.r32) +
+    lcol('S16','East',EB,E.s16,'South',SB,S.s16) +
+    lcol('E8', 'East',EB,E.e8, 'South',SB,S.e8) +
+    center +
+    rcol('E8', 'West',WB,W2.e8, 'Midwest',MB,M.e8) +
+    rcol('S16','West',WB,W2.s16,'Midwest',MB,M.s16) +
+    rcol('R32','West',WB,W2.r32,'Midwest',MB,M.r32) +
+    rcol('R64','West',WB,W2.r64,'Midwest',MB,M.r64);
+}
+
+// ═══ LEADERBOARD ═══
+function renderLB(){
+  const owners=Object.keys(OC);
+  const stats=owners.map(o=>({o,...ownerStats(o)}));
+  stats.sort((a,b)=>b.netEV-a.netEV);
+
+  // Pool-level totals
+  let pInv=0,pReal=0,pRem=0;
+  for(const s of stats){pInv+=s.inv;pReal+=s.real;pRem+=s.rem;}
+  const pNet=pReal-pInv, pNetEV=pReal+pRem-pInv;
+
+  function ostat(val,lbl,color){
+    return`<div class="osi"><div class="osv" style="color:${color||'var(--muted)'}">${val}</div><div class="osl">${lbl}</div></div>`;
+  }
+
+  // Pool totals card — identical structure to owner cards so columns align perfectly
+  let h=`<div class="oc" style="border-color:var(--border-dark);margin-bottom:20px">
+    <div class="och" style="background:#f3f3f3;border-bottom-width:3px">
+      <div class="oci" style="background:var(--text);font-size:13px">▲</div>
+      <div>
+        <div class="ocn" style="font-size:16px;letter-spacing:.1em">POOL TOTALS</div>
+        <div class="ocsub">${gDone}/63 games complete · $${POT.toLocaleString()} pot · ${owners.length} players</div>
+      </div>
+    </div>
+    <div class="ost">
+      <div class="osi osi-spacer"></div>
+      <div class="osi"><div class="osv cm">${fm(pInv)}</div><div class="osl">Invested</div></div>
+      <div class="osi"><div class="osv" style="color:${pReal>0?'var(--green)':'var(--muted)'}">${fm(pReal)}</div><div class="osl">Realized</div></div>
+      <div class="osi"><div class="osv" style="color:var(--blue)">${fm(pRem)}</div><div class="osl">EV Remaining</div></div>
+      <div class="osi"><div class="osv" style="color:${fc(pNet)}">${fm(pNet,true)}</div><div class="osl">Net Profit</div></div>
+      <div class="osi"><div class="osv" style="color:${fc(pNetEV)};font-size:18px">${fm(pNetEV,true)}</div><div class="osl">Net + EV</div></div>
+    </div>
+  </div>`;
+
+  stats.forEach((s,i)=>{
+    const c=oc(s.o), rk=i+1, rkc=rk===1?'r1':rk===2?'r2':rk===3?'r3':'';
+    const teams=[];
+    for(const[reg,ts]of Object.entries(POOL)){for(const t of ts){
+      if(t.o!==s.o)continue;
+      const st=gw(t.n),ev=teamEV(t.n);
+      teams.push({...t,reg,st,ev});
+    }}
+    teams.sort((a,b)=>b.p-a.p);
+
+    const trows=teams.map(t=>{
+      const st=t.st, ev=t.ev;
+      const dc=st.eliminated?'dot-r':st.live?'dot-o':'dot-g';
+      const bc=st.eliminated?'br':st.live?'bo':'bg';
+      const lbl=st.eliminated?'OUT':st.live?'LIVE':`${st.wins}W`;
+      const net=(ev.realized+ev.rem)-t.p;
+      // Team row mirrors .ost exactly: same 5 columns
+      return`<div class="team-row">
+        <div class="tr-name">
+          <span class="dot ${dc}"></span>
+          <span style="font-weight:600">${t.n}</span>
+          <span class="badge ${bc}">${lbl}</span>
+          <span style="font-size:9px;color:var(--hint)">${t.reg} ${t.s}</span>
+        </div>
+        <div class="tr-num">${fm(t.p)}</div>
+        <div class="tr-num" style="color:${ev.realized>0?'var(--green)':'var(--muted)'}">${st.eliminated?fm(ev.realized):'—'}</div>
+        <div class="tr-num" style="color:${ev.rem>0?'var(--blue)':'var(--muted)'}">${!st.eliminated?fm(ev.rem):'—'}</div>
+        <div class="tr-num" style="color:${fc(net)}">${fm(net,true)}</div>
+        <div class="tr-num" style="color:${fc(net)}">${fm(net,true)}</div>
+      </div>`;
+    }).join('');
+
+    h+=`<div class="oc">
+      <div class="och">
+        <div class="oci" style="background:${c}">${s.o[0]}</div>
+        <div>
+          <div class="ocn">${s.o}</div>
+          <div class="ocsub">${teams.length} teams · ${teams.filter(t=>!t.st.eliminated).length} alive</div>
+        </div>
+        <div class="ocrk ${rkc}">#${rk}</div>
+      </div>
+      <div class="ost">
+        <div class="osi osi-spacer"></div>
+        <div class="osi"><div class="osv cm">${fm(s.inv)}</div><div class="osl">Invested</div></div>
+        <div class="osi"><div class="osv" style="color:${s.real>0?'var(--green)':'var(--muted)'}">${fm(s.real)}</div><div class="osl">Realized</div></div>
+        <div class="osi"><div class="osv" style="color:var(--blue)">${fm(s.rem)}</div><div class="osl">EV Remaining</div></div>
+        <div class="osi"><div class="osv" style="color:${fc(s.net)}">${fm(s.net,true)}</div><div class="osl">Net Profit</div></div>
+        <div class="osi"><div class="osv" style="color:${fc(s.netEV)};font-size:18px">${fm(s.netEV,true)}</div><div class="osl">Net + EV</div></div>
+      </div>
+      <div class="team-rows">
+        <div class="tr-header">
+          <div class="tr-name-h">Team</div>
+          <div class="tr-num-h">Invested</div>
+          <div class="tr-num-h">Realized</div>
+          <div class="tr-num-h">EV Left</div>
+          <div class="tr-num-h">Net Profit</div>
+          <div class="tr-num-h">Net + EV</div>
+        </div>
+        ${trows}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('lbody').innerHTML=h;
+}
+
+// ═══ SUMMARY ═══
+function renderSum(){
+  document.getElementById('ss-g').textContent=`${gDone}/63`;
+  const hasLive=Object.values(W).some(w=>w.live);
+  document.getElementById('live-dot').className=hasLive?'on':'';
+  document.getElementById('live-label').textContent=hasLive?'LIVE':'Updated';
+  document.getElementById('upd').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+// ═══ TABS ═══
+function sw(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.className='tab'+((['b','l'][i]===name)?' on':''));
+  document.getElementById('bview').hidden=name!=='b';
+  document.getElementById('lview').hidden=name!=='l';
+}
+
+// ═══ TOAST ═══
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
+
+// ═══ REFRESH ═══
+async function refresh(){
+  document.getElementById('refbtn').textContent='↻ LOADING…';
+  try{await fetchESPN();renderAll();toast('Updated')}
+  catch(e){toast('ESPN error');renderAll();}
+  document.getElementById('refbtn').textContent='↻ REFRESH';
+}
+
+function renderAll(){renderBracket();renderLB();renderSum()}
+
+// ═══ INIT ═══
+async function init(){
+  try{await fetchESPN()}catch(e){console.error(e)}
+  renderAll();
+  document.getElementById('loading').style.display='none';
+  setInterval(refresh,3*60*1000);
+}
+init();
+</script>
+</body>
+</html>
