@@ -416,18 +416,25 @@ function norm(s){return(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/
 function matchTeam(en){
   const raw=(en||'').toLowerCase().replace(/[^a-z0-9 &]/g,'').trim();
   if(EXCL.some(ex=>raw===ex||raw.startsWith(ex+' '))) return null;
-  const n=norm(en);
+  const enWords=norm(en).split(' ');
+  let bestMatch=null, bestLen=0;
   for(const [,teams] of Object.entries(POOL)){
     for(const t of teams){
       for(const a of t.al){
-        const na=norm(a);
-        if(n===na) return t.n;
-        const nw=n.split(' '), naw=na.split(' ');
-        if(naw.every(w=>nw.includes(w))&&Math.abs(n.length-na.length)<4) return t.n;
+        const aliasWords=norm(a).split(' ');
+        // Exact match
+        if(norm(a)===norm(en)) return t.n;
+        // ESPN returns "Duke Blue Devils" — check if ESPN name starts with alias words in order
+        if(aliasWords.length<=enWords.length &&
+           aliasWords.every((w,i)=>enWords[i]===w) &&
+           aliasWords.length>bestLen){
+          bestLen=aliasWords.length;
+          bestMatch=t.n;
+        }
       }
     }
   }
-  return null;
+  return bestMatch;
 }
 
 async function fetchESPN(){
