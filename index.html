@@ -721,7 +721,7 @@ function renderLB(){
           <span style="font-size:9px;color:var(--hint)">${t.reg} ${t.s}</span>
         </div>
         <div class="tr-num">${fm(t.p)}</div>
-        <div class="tr-num" style="color:${ev.realized>0?'var(--green)':'var(--muted)'}">${st.eliminated?fm(ev.realized):'—'}</div>
+        <div class="tr-num" style="color:${ev.realized>0?'var(--green)':'var(--muted)'}">${ev.realized>0?fm(ev.realized):'—'}</div>
         <div class="tr-num" style="color:${ev.rem>0?'var(--blue)':'var(--muted)'}">${!st.eliminated?fm(ev.rem):'—'}</div>
         <div class="tr-num" style="color:${fc(net)}">${fm(net,true)}</div>
         <div class="tr-num" style="color:${fc(net)}">${fm(net,true)}</div>
