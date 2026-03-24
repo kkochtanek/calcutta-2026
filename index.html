@@ -432,11 +432,15 @@ function matchTeam(en){
 
 async function fetchESPN(){
   const nw={};let tot=0;
+  console.log('[ESPN] Starting fetch for',DATES.length,'dates');
   const rs=await Promise.allSettled(
     DATES.map(d=>fetch(`/api/espn?date=${d}`).then(r=>r.ok?r.json():null).catch(()=>null))
   );
+  console.log('[ESPN] Got',rs.length,'responses');
+  let evCount=0;
   for(const r of rs){
     if(r.status!=='fulfilled'||!r.value?.events) continue;
+    evCount+=r.value.events.length;
     for(const ev of r.value.events){
       const c=ev.competitions?.[0];
       if(!c?.competitors||c.competitors.length<2) continue;
@@ -448,7 +452,7 @@ async function fetchESPN(){
       if(mapped[0]&&mapped[0]===mapped[1]) continue;
       for(const x of c.competitors){
         const pn=matchTeam(x.team?.displayName||'');
-        if(!pn) continue;
+        if(!pn){console.log('[ESPN] NO MATCH:',x.team?.displayName); continue;}
         if(!nw[pn]) nw[pn]={wins:0,eliminated:false,live:false,score:''};
         const opp=c.competitors.find(y=>y.team?.displayName!==x.team?.displayName);
         if(done){
@@ -462,6 +466,7 @@ async function fetchESPN(){
       }
     }
   }
+  console.log('[ESPN] Total events:',evCount,'Completed games:',tot,'Teams matched:',Object.keys(nw));
   W=nw; gDone=tot;
 }
 
