@@ -407,8 +407,78 @@ const PR={
 };
 const DP={r1:.5,r2:.2,r3:.08,r4:.03,r5:.01,r6:.004};
 
+// Team ratings from spreadsheet — used for live Elo simulation
+const RATINGS={
+  'Duke':2238.1,"St. John's":2083.8,'Michigan St.':2064.3,'Connecticut':2053.2,
+  'Iowa':1951.7,'Nebraska':2021.0,'Illinois':2121.1,'Houston':2199.2,
+  'Arizona':2207.6,'Arkansas':1997.8,'NC St./TX':1900.0,'Purdue':2110.3,
+  'Michigan':2241.6,'Alabama':2029.8,'Tennessee':2016.4,'Iowa State':2185.5,
+  'Florida':2172.9,'Ohio State':1919.5,'TCU':1862.7,'N. Iowa':1725.0,
+  'Kansas':1950.1,'Cal Baptist':1634.8,'Louisville':1985.6,'S. Florida':1840.3,
+  'UCLA':1929.3,'UCF':1779.3,'Siena':1524.7,'Furman':1495.4,
+  'Clemson':1860.9,'Vanderbilt':2000.0,'McNeese':1738.3,'Troy':1518.7,
+  'N. Carolina':1894.0,'VCU':1825.5,'Penn':1533.5,"St. Mary's":1911.2,
+  'Texas A&M':1842.9,'Idaho':1514.8,'LIU':1418.4,'Villanova':1841.3,
+  'Utah State':1906.3,'Wisconsin':1940.8,'High Point':1715.4,'Hawaii':1596.1,
+  'BYU':1918.8,'Gonzaga':1996.9,'Kennesaw':1547.0,'Miami FL':1908.7,
+  'Missouri':1772.3,'Queens':1465.2,'Georgia':1834.1,'Saint Louis':1865.1,
+  'Texas Tech':1958.6,'Akron':1713.8,'Hofstra':1676.1,'SMU/Miami OH':1733.5,
+  'Virginia':1983.6,'Wright St.':1547.2,'Kentucky':1910.9,'Santa Clara':1860.2,
+  'Howard/UMBC':1475.2,'ND State':1592.2,'Tenn. State':1484.0,'PV/Lehigh':1282.0,
+};
+
+function eloP(a,b){
+  const ra=RATINGS[a]||1850, rb=RATINGS[b]||1850;
+  return 1/(1+Math.pow(10,(rb-ra)/400));
+}
+function simG(a,b){
+  if(!a||a.n==='?'||!a.n) return b;
+  if(!b||b.n==='?'||!b.n) return a;
+  const wa=W[a.n]||{}, wb=W[b.n]||{};
+  if(wa.eliminated&&!wb.eliminated) return b;
+  if(wb.eliminated&&!wa.eliminated) return a;
+  return Math.random()<eloP(a.n,b.n)?a:b;
+}
+function computeProbs(N=2000){
+  // Build bracket state once from actual results
+  const regBr={};
+  for(const reg of ['East','South','West','Midwest']) regBr[reg]=buildRegion(reg);
+
+  const counts={};
+  const add=(t,r)=>{
+    if(!t||t.n==='?'||!t.n) return;
+    if(!counts[t.n]) counts[t.n]={r3:0,r4:0,r5:0,r6:0};
+    counts[t.n][r]++;
+  };
+
+  for(let i=0;i<N;i++){
+    const f4={};
+    for(const reg of ['East','South','West','Midwest']){
+      const {s16t,e8t,f4:f4k}=regBr[reg];
+      // S16 — use actual result if played, else simulate
+      const e8a=(e8t[0]&&e8t[0].n!=='?')?e8t[0]:simG(s16t[0],s16t[1]);
+      const e8b=(e8t[1]&&e8t[1].n!=='?')?e8t[1]:simG(s16t[2],s16t[3]);
+      add(e8a,'r3'); add(e8b,'r3');
+      // E8
+      const f4w=(f4k&&f4k.n!=='?')?f4k:simG(e8a,e8b);
+      add(f4w,'r4');
+      f4[reg]=f4w;
+    }
+    // Final Four
+    const fl=simG(f4.East,f4.South);
+    const fr=simG(f4.West,f4.Midwest);
+    add(fl,'r5'); add(fr,'r5');
+    // Championship
+    add(simG(fl,fr),'r6');
+  }
+  COMPUTED_PR={};
+  for(const [n,c] of Object.entries(counts)){
+    COMPUTED_PR[n]={r1:1,r2:1,r3:c.r3/N,r4:c.r4/N,r5:c.r5/N,r6:c.r6/N};
+  }
+}
+
 // ═══ STATE ═══
-let W={}, gDone=0, sortCol='inv';
+let W={}, gDone=0, sortCol='inv', COMPUTED_PR={};
 
 // ═══ ESPN ═══
 const DATES=['20260317','20260318','20260319','20260320','20260321','20260322',
@@ -482,11 +552,13 @@ async function fetchESPN(){
     }
   }
   W=nw; gDone=tot;
+  computeProbs();
 }
 
 // ═══ EV ═══
 function teamEV(n){
-  const p=PR[n]||DP, st=W[n]||{wins:0,eliminated:false};
+  const st=W[n]||{wins:0,eliminated:false};
+  const p=COMPUTED_PR[n]||PR[n]||DP;
   const k=st.wins||0;
   if(st.eliminated) return{realized:PW[k]||0,rem:0};
   const base=k===0?1:([p.r1,p.r2,p.r3,p.r4,p.r5,p.r6][k-1]||.001);
