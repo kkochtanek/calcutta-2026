@@ -489,7 +489,7 @@ function teamEV(n){
   let ev=0;
   if(k<1)ev+=(r1-r2)*PW[1];if(k<2)ev+=(r2-r3)*PW[2];if(k<3)ev+=(r3-r4)*PW[3];
   if(k<4)ev+=(r4-r5)*PW[4];if(k<5)ev+=(r5-r6)*PW[5];ev+=r6*PW[6];
-  return{realized:PW[k]||0,rem:Math.max(0,ev)};
+  return{realized:PW[k]||0,rem:Math.max(0,ev-(PW[k]||0))};
 }
 function ownerStats(o){
   let inv=0,real=0,rem=0;
