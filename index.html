@@ -109,7 +109,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .ocrk.r1{color:var(--gold)}.ocrk.r2{color:#9ca3af}.ocrk.r3{color:#b45309}
 
 /* Stats grid — desktop: 6 cols, mobile: 2x3 pill grid */
-.ost{display:grid;grid-template-columns:200px repeat(5,1fr);border-bottom:1px solid var(--border)}
+.ost{display:grid;grid-template-columns:200px repeat(4,1fr);border-bottom:1px solid var(--border)}
 .osi-spacer{background:#fafafa}
 .osi{padding:8px 10px;text-align:center;border-right:1px solid var(--border)}
 .osi:last-child{border-right:none}
@@ -118,10 +118,10 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 
 /* Team rows */
 .team-rows{border-top:1px solid var(--border2)}
-.tr-header{display:grid;grid-template-columns:200px repeat(5,1fr);padding:0;background:#fafafa;border-bottom:1px solid var(--border)}
+.tr-header{display:grid;grid-template-columns:200px repeat(4,1fr);padding:0;background:#fafafa;border-bottom:1px solid var(--border)}
 .tr-name-h{padding:5px 10px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 .tr-num-h{padding:5px 8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:right}
-.team-row{display:grid;grid-template-columns:200px repeat(5,1fr);border-bottom:1px solid var(--border2)}
+.team-row{display:grid;grid-template-columns:200px repeat(4,1fr);border-bottom:1px solid var(--border2)}
 .team-row:last-child{border-bottom:none}
 .team-row:hover{background:rgba(0,0,0,.02)}
 .tr-name{padding:6px 10px;display:flex;align-items:center;gap:5px;font-size:12px;flex-wrap:wrap;min-width:0}
@@ -174,17 +174,17 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
   /* All 5 stats + team rows vertically aligned.
      All three grids share the exact same template:
      col1 = name/spacer (0.7fr), cols 2-6 = the 5 stats (each 1fr) */
-  .ost{grid-template-columns:0.7fr repeat(5,1fr)}
+  .ost{grid-template-columns:0.7fr repeat(4,1fr)}
   .osi-spacer{display:block;background:#fafafa}
   .osi{padding:7px 2px;border-right:1px solid var(--border2)}
   .osi:last-child{border-right:none}
   .osv{font-size:12px}
   .osl{font-size:6.5px;letter-spacing:.02em}
 
-  .tr-header{grid-template-columns:0.7fr repeat(5,1fr)}
+  .tr-header{grid-template-columns:0.7fr repeat(4,1fr)}
   .tr-num-h{padding:4px 2px;font-size:6.5px;letter-spacing:.02em}
 
-  .team-row{grid-template-columns:0.7fr repeat(5,1fr)}
+  .team-row{grid-template-columns:0.7fr repeat(4,1fr)}
   .tr-num{padding:5px 2px;font-size:9px}
 
   .tr-name{padding:6px 4px;gap:3px;font-size:11px}
@@ -200,9 +200,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 ══════════════════════════════════════ */
 @media(min-width:641px) and (max-width:900px){
   #lview{padding:12px}
-  .ost{grid-template-columns:120px repeat(5,1fr)}
-  .tr-header{grid-template-columns:120px repeat(5,1fr)}
-  .team-row{grid-template-columns:120px repeat(5,1fr)}
+  .ost{grid-template-columns:120px repeat(4,1fr)}
+  .tr-header{grid-template-columns:120px repeat(4,1fr)}
+  .team-row{grid-template-columns:120px repeat(4,1fr)}
   .tr-num{font-size:10px;padding:5px 6px}
   .tr-num-h{padding:5px 6px;font-size:8px}
   .osv{font-size:16px}
@@ -690,9 +690,8 @@ function renderLB(){
       <div class="osi osi-spacer"></div>
       <div class="osi"><div class="osv cm">${fm(pInv)}</div><div class="osl">Invested</div></div>
       <div class="osi"><div class="osv" style="color:${pReal>0?'var(--green)':'var(--muted)'}">${fm(pReal)}</div><div class="osl">Realized</div></div>
-      <div class="osi"><div class="osv" style="color:var(--blue)">${fm(pRem)}</div><div class="osl">EV Remaining</div></div>
       <div class="osi"><div class="osv" style="color:${fc(pNet)}">${fm(pNet,true)}</div><div class="osl">Net Profit</div></div>
-      <div class="osi"><div class="osv" style="color:${fc(pNetEV)};font-size:18px">${fm(pNetEV,true)}</div><div class="osl">Net + EV</div></div>
+      <div class="osi"><div class="osv" style="color:var(--blue)">${fm(pRem)}</div><div class="osl">Projected Remaining Value</div></div>
     </div>
   </div>`;
 
@@ -722,9 +721,8 @@ function renderLB(){
         </div>
         <div class="tr-num">${fm(t.p)}</div>
         <div class="tr-num" style="color:${ev.realized>0?'var(--green)':'var(--muted)'}">${ev.realized>0?fm(ev.realized):'—'}</div>
-        <div class="tr-num" style="color:${ev.rem>0?'var(--blue)':'var(--muted)'}">${!st.eliminated?fm(ev.rem):'—'}</div>
-        <div class="tr-num" style="color:${fc(net)}">${fm(net,true)}</div>
-        <div class="tr-num" style="color:${fc(net)}">${fm(net,true)}</div>
+        <div class="tr-num" style="color:${fc(ev.realized-t.p)}">${fm(ev.realized-t.p,true)}</div>
+        <div class="tr-num" style="color:${ev.rem>0?'var(--blue)':'var(--muted)'}">${ev.rem>0?fm(ev.rem):'—'}</div>
       </div>`;
     }).join('');
 
@@ -741,18 +739,16 @@ function renderLB(){
         <div class="osi osi-spacer"></div>
         <div class="osi"><div class="osv cm">${fm(s.inv)}</div><div class="osl">Invested</div></div>
         <div class="osi"><div class="osv" style="color:${s.real>0?'var(--green)':'var(--muted)'}">${fm(s.real)}</div><div class="osl">Realized</div></div>
-        <div class="osi"><div class="osv" style="color:var(--blue)">${fm(s.rem)}</div><div class="osl">EV Remaining</div></div>
         <div class="osi"><div class="osv" style="color:${fc(s.net)}">${fm(s.net,true)}</div><div class="osl">Net Profit</div></div>
-        <div class="osi"><div class="osv" style="color:${fc(s.netEV)};font-size:18px">${fm(s.netEV,true)}</div><div class="osl">Net + EV</div></div>
+        <div class="osi"><div class="osv" style="color:var(--blue)">${fm(s.rem)}</div><div class="osl">Projected Remaining Value</div></div>
       </div>
       <div class="team-rows">
         <div class="tr-header">
           <div class="tr-name-h">Team</div>
           <div class="tr-num-h">Invested</div>
           <div class="tr-num-h">Realized</div>
-          <div class="tr-num-h">EV Left</div>
           <div class="tr-num-h">Net Profit</div>
-          <div class="tr-num-h">Net + EV</div>
+          <div class="tr-num-h">Proj. Remaining</div>
         </div>
         ${trows}
       </div>
