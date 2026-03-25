@@ -408,7 +408,7 @@ const PR={
 const DP={r1:.5,r2:.2,r3:.08,r4:.03,r5:.01,r6:.004};
 
 // ═══ STATE ═══
-let W={}, gDone=0;
+let W={}, gDone=0, sortCol='inv';
 
 // ═══ ESPN ═══
 const DATES=['20260317','20260318','20260319','20260320','20260321','20260322',
@@ -674,6 +674,27 @@ function renderBracket(){
     rcol('R64','West',WB,W2.r64,'Midwest',MB,M.r64);
 }
 
+// ═══ SORT & PERF ═══
+function setSort(col){sortCol=col;renderLB();}
+function sortVal(t,ev,col){
+  switch(col){
+    case 'real': return ev.realized;
+    case 'net':  return ev.realized-t.p;
+    case 'rem':  return ev.rem;
+    case 'proj': return (ev.realized-t.p)+ev.rem;
+    default:     return t.p;
+  }
+}
+function perfDesc(st){
+  const k=st.wins||0;
+  if(k===6) return'🏆 Champion';
+  const gone=['','Lost in R32','Lost in S16','Lost in E8','Lost in F4','Runner-Up',''];
+  const alive=['','In R32','Sweet 16','Elite 8','Final Four','In Finals',''];
+  if(st.eliminated) return k===0?'First round exit':gone[k]||'Eliminated';
+  if(st.live) return'Playing now';
+  return alive[k]||'';
+}
+
 // ═══ LEADERBOARD ═══
 function renderLB(){
   const owners=Object.keys(OC);
@@ -716,7 +737,7 @@ function renderLB(){
       const st=gw(t.n),ev=teamEV(t.n);
       teams.push({...t,reg,st,ev});
     }}
-    teams.sort((a,b)=>b.p-a.p);
+    teams.sort((a,b)=>sortVal(b,b.ev,sortCol)-sortVal(a,a.ev,sortCol));
 
     const trows=teams.map(t=>{
       const st=t.st, ev=t.ev;
@@ -725,12 +746,13 @@ function renderLB(){
       const lbl=st.eliminated?'OUT':st.live?'LIVE':`${st.wins}W`;
       const net=ev.realized-t.p;
       const projProfit=net+ev.rem;
+      const pd=perfDesc(st);
       return`<div class="team-row" style="cursor:pointer" onclick="roastTeam('${t.n.replace(/'/g,"\\'")}',${t.p},${ev.realized},${ev.rem},${st.eliminated?1:0},'${s.o}')">
         <div class="tr-name">
           <span class="dot ${dc}"></span>
           <span style="font-weight:600">${t.n}</span>
           <span class="badge ${bc}">${lbl}</span>
-          <span style="font-size:9px;color:var(--hint)">${t.reg} ${t.s}</span>
+          ${pd?`<span style="font-size:9px;color:var(--muted);font-style:italic">${pd}</span>`:''}
         </div>
         <div class="tr-num">${fm(t.p)}</div>
         <div class="tr-num" style="color:${ev.realized>0?'var(--green)':'var(--muted)'}">${ev.realized>0?fm(ev.realized):'—'}</div>
@@ -760,11 +782,11 @@ function renderLB(){
       <div class="team-rows">
         <div class="tr-header">
           <div class="tr-name-h">Team</div>
-          <div class="tr-num-h">Invested</div>
-          <div class="tr-num-h">Realized</div>
-          <div class="tr-num-h">Net Profit</div>
-          <div class="tr-num-h">Proj. Remaining</div>
-          <div class="tr-num-h">Proj. Profit</div>
+          ${['inv','real','net','rem','proj'].map((col,i)=>{
+            const labels=['Invested','Realized','Net Profit','Proj. Remaining','Proj. Profit'];
+            const active=sortCol===col;
+            return`<div class="tr-num-h" style="cursor:pointer;${active?'color:var(--orange)':''}" onclick="setSort('${col}')">${labels[i]}${active?' ▼':''}</div>`;
+          }).join('')}
         </div>
         ${trows}
       </div>
