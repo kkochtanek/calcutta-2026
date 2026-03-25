@@ -109,7 +109,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .ocrk.r1{color:var(--gold)}.ocrk.r2{color:#9ca3af}.ocrk.r3{color:#b45309}
 
 /* Stats grid — desktop: 6 cols, mobile: 2x3 pill grid */
-.ost{display:grid;grid-template-columns:200px repeat(4,1fr);border-bottom:1px solid var(--border)}
+.ost{display:grid;grid-template-columns:200px repeat(5,1fr);border-bottom:1px solid var(--border)}
 .osi-spacer{background:#fafafa}
 .osi{padding:8px 10px;text-align:center;border-right:1px solid var(--border)}
 .osi:last-child{border-right:none}
@@ -118,10 +118,10 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 
 /* Team rows */
 .team-rows{border-top:1px solid var(--border2)}
-.tr-header{display:grid;grid-template-columns:200px repeat(4,1fr);padding:0;background:#fafafa;border-bottom:1px solid var(--border)}
+.tr-header{display:grid;grid-template-columns:200px repeat(5,1fr);padding:0;background:#fafafa;border-bottom:1px solid var(--border)}
 .tr-name-h{padding:5px 10px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 .tr-num-h{padding:5px 8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:right}
-.team-row{display:grid;grid-template-columns:200px repeat(4,1fr);border-bottom:1px solid var(--border2)}
+.team-row{display:grid;grid-template-columns:200px repeat(5,1fr);border-bottom:1px solid var(--border2)}
 .team-row:last-child{border-bottom:none}
 .team-row:hover{background:rgba(0,0,0,.02)}
 .tr-name{padding:6px 10px;display:flex;align-items:center;gap:5px;font-size:12px;flex-wrap:wrap;min-width:0}
@@ -174,17 +174,17 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
   /* All 5 stats + team rows vertically aligned.
      All three grids share the exact same template:
      col1 = name/spacer (0.7fr), cols 2-6 = the 5 stats (each 1fr) */
-  .ost{grid-template-columns:0.7fr repeat(4,1fr)}
+  .ost{grid-template-columns:0.7fr repeat(5,1fr)}
   .osi-spacer{display:block;background:#fafafa}
   .osi{padding:7px 2px;border-right:1px solid var(--border2)}
   .osi:last-child{border-right:none}
   .osv{font-size:12px}
   .osl{font-size:6.5px;letter-spacing:.02em}
 
-  .tr-header{grid-template-columns:0.7fr repeat(4,1fr)}
+  .tr-header{grid-template-columns:0.7fr repeat(5,1fr)}
   .tr-num-h{padding:4px 2px;font-size:6.5px;letter-spacing:.02em}
 
-  .team-row{grid-template-columns:0.7fr repeat(4,1fr)}
+  .team-row{grid-template-columns:0.7fr repeat(5,1fr)}
   .tr-num{padding:5px 2px;font-size:9px}
 
   .tr-name{padding:6px 4px;gap:3px;font-size:11px}
@@ -200,9 +200,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 ══════════════════════════════════════ */
 @media(min-width:641px) and (max-width:900px){
   #lview{padding:12px}
-  .ost{grid-template-columns:120px repeat(4,1fr)}
-  .tr-header{grid-template-columns:120px repeat(4,1fr)}
-  .team-row{grid-template-columns:120px repeat(4,1fr)}
+  .ost{grid-template-columns:120px repeat(5,1fr)}
+  .tr-header{grid-template-columns:120px repeat(5,1fr)}
+  .team-row{grid-template-columns:120px repeat(5,1fr)}
   .tr-num{font-size:10px;padding:5px 6px}
   .tr-num-h{padding:5px 6px;font-size:8px}
   .osv{font-size:16px}
@@ -215,6 +215,15 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 <body>
 <div id="loading"><div class="spin"></div><div style="font-family:'Barlow Condensed';font-size:14px;font-weight:700;letter-spacing:.1em;color:#999">LOADING LIVE DATA…</div></div>
 <div id="toast"></div>
+<div id="roast-overlay" onclick="closeRoast()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:12px;max-width:400px;width:90%;padding:24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div id="roast-emoji" style="font-size:48px;text-align:center;margin-bottom:8px"></div>
+    <div id="roast-team" style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-align:center;margin-bottom:4px"></div>
+    <div id="roast-owner" style="font-size:11px;color:#999;text-align:center;margin-bottom:16px;text-transform:uppercase;letter-spacing:.08em"></div>
+    <div id="roast-msg" style="font-size:14px;line-height:1.6;color:#333;text-align:center;margin-bottom:20px"></div>
+    <button onclick="closeRoast()" style="width:100%;padding:10px;background:#111;color:#fff;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:.06em;cursor:pointer">GOT IT</button>
+  </div>
+</div>
 
 <div id="mast">
   <div id="mast-l">
@@ -317,7 +326,7 @@ const POOL={
     {s:11,n:'NC St./TX',     al:['NC State','Texas','North Carolina State'],o:'Sam',p:70},
     {s:3, n:'Gonzaga',       al:['Gonzaga'],                     o:'Kyle',   p:370},
     {s:14,n:'Kennesaw',      al:['Kennesaw State','Kennesaw St.'],o:null,    p:0},
-    {s:7, n:'Miami FL',      al:['Miami (FL)','Miami FL'],       o:'Allison',p:130},
+    {s:7, n:'Miami FL',      al:['Miami (FL)','Miami FL','Miami Hurricanes','U Miami'],o:'Allison',p:130},
     {s:10,n:'Missouri',      al:['Missouri'],                    o:'Kyle',   p:75},
     {s:2, n:'Purdue',        al:['Purdue'],                      o:'Kyle',   p:440},
     {s:15,n:'Queens',        al:['Queens'],                      o:null,     p:0},
@@ -410,9 +419,10 @@ const EXCL=['alabama state','alabama am','alabama a&m','south alabama','tennesse
   'north carolina asheville','kansas state','kansas city','iowa state university',
   'georgia state','georgia tech','georgia southern','georgia gwinnett',
   'virginia tech','virginia commonwealth','virginia military','virginia union',
-  'arkansas state','arkansas pine','michigan state','houston baptist','houston christian',
+  'arkansas state','arkansas pine','houston baptist','houston christian',
   'gonzaga prep','arizona state','arizona christian','purdue fort wayne','purdue northwest',
-  'saint mary','saint joseph','butler','utah valley','illinois state','illinois chicago'];
+  'saint mary','saint joseph','butler','utah valley','illinois state','illinois chicago',
+  'miami ohio','miami oh'];
 
 function norm(s){return(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim()}
 function matchTeam(en){
@@ -693,7 +703,8 @@ function renderLB(){
       <div class="osi"><div class="osv cm">${fm(pInv)}</div><div class="osl">Invested</div></div>
       <div class="osi"><div class="osv" style="color:${pReal>0?'var(--green)':'var(--muted)'}">${fm(pReal)}</div><div class="osl">Realized</div></div>
       <div class="osi"><div class="osv" style="color:${fc(pNet)}">${fm(pNet,true)}</div><div class="osl">Net Profit</div></div>
-      <div class="osi"><div class="osv" style="color:var(--blue)">${fm(pRem)}</div><div class="osl">Projected Remaining Value</div></div>
+      <div class="osi"><div class="osv" style="color:var(--blue)">${fm(pRem)}</div><div class="osl">Proj. Remaining</div></div>
+      <div class="osi"><div class="osv" style="color:${fc(pNetEV)};font-size:18px">${fm(pNetEV,true)}</div><div class="osl">Projected Profit</div></div>
     </div>
   </div>`;
 
@@ -712,9 +723,9 @@ function renderLB(){
       const dc=st.eliminated?'dot-r':st.live?'dot-o':'dot-g';
       const bc=st.eliminated?'br':st.live?'bo':'bg';
       const lbl=st.eliminated?'OUT':st.live?'LIVE':`${st.wins}W`;
-      const net=(ev.realized+ev.rem)-t.p;
-      // Team row mirrors .ost exactly: same 5 columns
-      return`<div class="team-row">
+      const net=ev.realized-t.p;
+      const projProfit=net+ev.rem;
+      return`<div class="team-row" style="cursor:pointer" onclick="roastTeam('${t.n.replace(/'/g,"\\'")}',${t.p},${ev.realized},${ev.rem},${st.eliminated?1:0},'${s.o}')">
         <div class="tr-name">
           <span class="dot ${dc}"></span>
           <span style="font-weight:600">${t.n}</span>
@@ -723,8 +734,9 @@ function renderLB(){
         </div>
         <div class="tr-num">${fm(t.p)}</div>
         <div class="tr-num" style="color:${ev.realized>0?'var(--green)':'var(--muted)'}">${ev.realized>0?fm(ev.realized):'—'}</div>
-        <div class="tr-num" style="color:${fc(ev.realized-t.p)}">${fm(ev.realized-t.p,true)}</div>
+        <div class="tr-num" style="color:${fc(net)}">${fm(net,true)}</div>
         <div class="tr-num" style="color:${ev.rem>0?'var(--blue)':'var(--muted)'}">${ev.rem>0?fm(ev.rem):'—'}</div>
+        <div class="tr-num" style="color:${fc(projProfit)};font-weight:700">${fm(projProfit,true)}</div>
       </div>`;
     }).join('');
 
@@ -742,7 +754,8 @@ function renderLB(){
         <div class="osi"><div class="osv cm">${fm(s.inv)}</div><div class="osl">Invested</div></div>
         <div class="osi"><div class="osv" style="color:${s.real>0?'var(--green)':'var(--muted)'}">${fm(s.real)}</div><div class="osl">Realized</div></div>
         <div class="osi"><div class="osv" style="color:${fc(s.net)}">${fm(s.net,true)}</div><div class="osl">Net Profit</div></div>
-        <div class="osi"><div class="osv" style="color:var(--blue)">${fm(s.rem)}</div><div class="osl">Projected Remaining Value</div></div>
+        <div class="osi"><div class="osv" style="color:var(--blue)">${fm(s.rem)}</div><div class="osl">Proj. Remaining</div></div>
+        <div class="osi"><div class="osv" style="color:${fc(s.netEV)};font-size:18px">${fm(s.netEV,true)}</div><div class="osl">Projected Profit</div></div>
       </div>
       <div class="team-rows">
         <div class="tr-header">
@@ -751,6 +764,7 @@ function renderLB(){
           <div class="tr-num-h">Realized</div>
           <div class="tr-num-h">Net Profit</div>
           <div class="tr-num-h">Proj. Remaining</div>
+          <div class="tr-num-h">Proj. Profit</div>
         </div>
         ${trows}
       </div>
@@ -778,6 +792,50 @@ function sw(name){
 
 // ═══ TOAST ═══
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
+
+// ═══ ROAST ═══
+function roastTeam(name,invested,realized,rem,eliminated,owner){
+  const net=realized-invested;
+  const proj=net+rem;
+  const roi=invested>0?proj/invested:0;
+  let emoji,msg;
+  if(eliminated&&realized===0){
+    emoji='🗑️';
+    const lines=["Didn't win a single game. You paid "+fm(invested)+" to watch them pack their bags.",
+      "A bold strategy paying "+fm(invested)+" for a team that left before the party started. Bold.",
+      fm(invested)+" straight into the shredder. At least it was tax deductible. (It's not.)",
+      "Zero wins. Zero dollars. Maximum regret. That's "+fm(invested)+" you'll never see again."];
+    msg=lines[Math.floor(Math.random()*lines.length)];
+  } else if(eliminated&&net<-invested*.5){
+    emoji='😬';
+    msg=`You paid ${fm(invested)} and got back ${fm(realized)}. That's a ${fm(Math.abs(net))} lesson in trusting your gut less.`;
+  } else if(eliminated&&net<0){
+    emoji='😅';
+    msg=`Down ${fm(Math.abs(net))} on ${name}. Could be worse. Could also be better. Mostly worse.`;
+  } else if(eliminated&&net>=0){
+    emoji='🎉';
+    msg=`${name} is out but you still made ${fm(net)} profit. Somehow you turned bracketology into a business model.`;
+  } else if(!eliminated&&roi>0.5){
+    emoji='🚀';
+    msg=`${name} is alive and your projected profit is ${fm(proj)}. You are either a genius or incredibly lucky. Probably lucky.`;
+  } else if(!eliminated&&roi>0){
+    emoji='😏';
+    msg=`${name} is still dancing and you're up ${fm(proj)} projected. Don't get cocky — there's still plenty of time to blow it.`;
+  } else if(!eliminated&&proj>-invested*.25){
+    emoji='🤞';
+    msg=`${name} is alive but you're still down ${fm(Math.abs(proj))} projected. Hope springs eternal and so does poor decision-making.`;
+  } else {
+    emoji='💸';
+    msg=`You dropped ${fm(invested)} on ${name} and you're projected to lose ${fm(Math.abs(proj))}. ${name} is still alive, which is more than we can say for your investment strategy.`;
+  }
+  document.getElementById('roast-emoji').textContent=emoji;
+  document.getElementById('roast-team').textContent=name;
+  document.getElementById('roast-owner').textContent=`${owner}'s pick · ${fm(invested)} invested`;
+  document.getElementById('roast-msg').textContent=msg;
+  const el=document.getElementById('roast-overlay');
+  el.style.display='flex';
+}
+function closeRoast(){document.getElementById('roast-overlay').style.display='none';}
 
 // ═══ REFRESH ═══
 async function refresh(){
